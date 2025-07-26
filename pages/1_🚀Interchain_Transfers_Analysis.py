@@ -28,8 +28,8 @@ conn = snowflake.connector.connect(
 
 # --- Time Frame & Period Selection ---
 timeframe = st.selectbox("Select Time Frame", ["day", "week", "month"])
-start_date = st.date_input("Start Date", value=pd.to_datetime("2022-01-01"))
-end_date = st.date_input("End Date", value=pd.to_datetime("2025-06-01"))
+start_date = st.date_input("Start Date", value=pd.to_datetime("2023-12-01"))
+end_date = st.date_input("End Date", value=pd.to_datetime("2025-06-30"))
 
 # --- Helper function for date truncation based on timeframe ---
 def truncate_date(date_col, timeframe):
