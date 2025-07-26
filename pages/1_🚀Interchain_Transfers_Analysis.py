@@ -46,38 +46,69 @@ date_col = truncate_date("block_timestamp", timeframe)
 
 # --- Query Functions ---------------------------------------------------------------------------------------
 @st.cache_data
-def load_blocks_stats_filtered(start_date, end_date):
+def load_ai_transfer_kpis(start_date, end_date):
     query = f"""
-    SELECT COUNT(DISTINCT fact_blocks_id) AS "Blocks Count",
-           ROUND(AVG(tx_count)) AS "Average TX per Block"
-    FROM axelar.core.fact_blocks
-    WHERE block_timestamp::date >= '{start_date}'
-      AND block_timestamp::date <= '{end_date}'
+        WITH tab2 AS (
+            WITH tab1 AS (
+                SELECT 
+                    created_at AS block_timestamp,
+                    id AS tx_id,
+                    data:call.transaction.from::STRING AS sender_address,
+                    data:call.returnValues.destinationContractAddress::STRING AS receiver_address,
+                    data:amount::FLOAT AS token_amount,
+                    (TRY_CAST(data:value::float AS FLOAT)) AS transfers_volume_usd,
+                    TRY_CAST(data:fees:express_fee_usd::float AS FLOAT) AS transfer_fee,
+                    data:symbol::STRING AS token_symbol,
+                    data:call.chain::STRING AS source_chain,
+                    data:call.returnValues.destinationChain::STRING AS destination_chain
+                FROM axelar.axelscan.fact_gmp
+            )
+            SELECT block_timestamp, tx_id, sender_address, receiver_address, token_amount,
+                CASE 
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-12-01 00:00:00.000'
+                        THEN token_amount * 0.00000165
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-01-01 00:00:00.000'
+                        THEN token_amount * 0.00000055
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-02-01 00:00:00.000'
+                        THEN token_amount * 0.00000145
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-03-01 00:00:00.000'
+                        THEN token_amount * 0.00000202
+                    ELSE transfers_volume_usd 
+                END AS transfers_volume_usd,
+                transfer_fee, token_symbol, source_chain, destination_chain
+            FROM tab1
+        )
+        SELECT 
+            COUNT(DISTINCT tx_id) AS "Number of Transfers",
+            COUNT(DISTINCT sender_address) AS "Number of Users",
+            ROUND(SUM(token_amount), 2) AS "Volume of Transfers ($AI)",
+            ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
+            ROUND(MEDIAN(transfers_volume_usd), 2) AS "Median Volume of Transfers ($USD)",
+            ROUND(SUM(transfer_fee), 2) AS "Total Transfer Fees ($USD)",
+            ROUND(MEDIAN(transfer_fee), 2) AS "Median Transfer Fees ($USD)",
+            COUNT(DISTINCT (source_chain || '➡' || destination_chain)) AS "Number of Paths"
+        FROM tab2
+        WHERE token_symbol = 'AI'
+          AND block_timestamp::date >= '{start_date}'
+          AND block_timestamp::date <= '{end_date}'
     """
     return pd.read_sql(query, conn).iloc[0]
-
-@st.cache_data
-def load_blocks_stats_last24h():
-    query = """
-    SELECT COUNT(DISTINCT fact_blocks_id) AS "Blocks Count",
-           round(AVG(tx_count)) AS "Average TX per Block"
-    FROM axelar.core.fact_blocks
-    WHERE block_timestamp::date >= current_date - 1
-    """
-    return pd.read_sql(query, conn).iloc[0]
-
 
 
 # --- Load Data ----------------------------------------------------------------------------------------
-blocks_stats_filtered = load_blocks_stats_filtered(start_date, end_date)
-blocks_stats_last24h = load_blocks_stats_last24h()
+ai_transfer_kpis = load_ai_transfer_kpis(start_date, end_date)
 
 # --- Row Data ------------------------------------------------------------------------------------------
 
 # --- Row 1: Metrics ---
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Number of Blocks Generated", f"{blocks_stats_filtered['Blocks Count']:,}")
-col2.metric("Avg Txn Count per Block", f"{blocks_stats_filtered['Average TX per Block']:.0f}")
-col3.metric("Number of Blocks Generated (Last 24h)", f"{blocks_stats_last24h['Blocks Count']:,}")
-col4.metric("Avg Txn Count per Block (Last 24h)", f"{blocks_stats_last24h['Average TX per Block']:.2f}")
+kpi_cols = st.columns(4)
+kpi_cols[0].metric("Number of Transfers", f"{ai_transfer_kpis['Number of Transfers']:,}")
+kpi_cols[1].metric("Number of Users", f"{ai_transfer_kpis['Number of Users']:,}")
+kpi_cols[2].metric("Volume of Transfers ($AI)", f"{ai_transfer_kpis['Volume of Transfers ($AI)']:,}")
+kpi_cols[3].metric("Volume of Transfers ($USD)", f"${ai_transfer_kpis['Volume of Transfers ($USD)']:,}")
 
+kpi_cols2 = st.columns(4)
+kpi_cols2[0].metric("Median Volume of Transfers ($USD)", f"${ai_transfer_kpis['Median Volume of Transfers ($USD)']:,}")
+kpi_cols2[1].metric("Total Transfer Fees ($USD)", f"${ai_transfer_kpis['Total Transfer Fees ($USD)']:,}")
+kpi_cols2[2].metric("Median Transfer Fees ($USD)", f"${ai_transfer_kpis['Median Transfer Fees ($USD)']:,}")
+kpi_cols2[3].metric("Number of Paths", f"{ai_transfer_kpis['Number of Paths']:,}")
