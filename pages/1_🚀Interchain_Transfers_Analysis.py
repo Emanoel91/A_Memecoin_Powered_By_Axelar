@@ -85,7 +85,7 @@ def load_ai_transfer_kpis(start_date, end_date):
             ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
             ROUND(MEDIAN(transfers_volume_usd), 2) AS "Median Volume of Transfers ($USD)",
             ROUND(SUM(transfer_fee), 2) AS "Total Transfer Fees ($USD)",
-            ROUND(MEDIAN(transfer_fee), 2) AS "Median Transfer Fees ($USD)",
+            ROUND(avg(transfer_fee), 2) AS "Average Transfer Fees ($USD)",
             COUNT(DISTINCT (source_chain || '➡' || destination_chain)) AS "Number of Paths"
         FROM tab2
         WHERE token_symbol = 'AI'
@@ -110,5 +110,5 @@ kpi_cols[3].metric("💰Volume of Transfers ($USD)", f"${ai_transfer_kpis['Volum
 kpi_cols2 = st.columns(4)
 kpi_cols2[0].metric("📊Median Volume of Transfers ($USD)", f"${ai_transfer_kpis['Median Volume of Transfers ($USD)']:,}")
 kpi_cols2[1].metric("⛽Total Transfer Fees ($USD)", f"${ai_transfer_kpis['Total Transfer Fees ($USD)']:,}")
-kpi_cols2[2].metric("💨Median Transfer Fees ($USD)", f"${ai_transfer_kpis['Median Transfer Fees ($USD)']:,}")
+kpi_cols2[2].metric("💨Average Transfer Fees ($USD)", f"${ai_transfer_kpis['Average Transfer Fees ($USD)']:,}")
 kpi_cols2[3].metric("🔀Number of Paths", f"{ai_transfer_kpis['Number of Paths']:,}")
