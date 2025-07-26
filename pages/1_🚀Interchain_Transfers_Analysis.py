@@ -27,7 +27,7 @@ conn = snowflake.connector.connect(
 )
 
 # --- Time Frame & Period Selection ---
-timeframe = st.selectbox("Select Time Frame", ["day", "week", "month"])
+timeframe = st.selectbox("Select Time Frame", ["month", "week","day"])
 start_date = st.date_input("Start Date", value=pd.to_datetime("2023-12-01"))
 end_date = st.date_input("End Date", value=pd.to_datetime("2025-06-30"))
 
