@@ -10,12 +10,12 @@ st.set_page_config(
 
 st.title("🔵Any Inu (AI): A Memecoin Powered By Axelar")
 
+# --- Display Image ---
+st.image("https://pbs.twimg.com/profile_banners/1739891504255025152/1709784887/1500x500", caption="", use_container_width=True)
+
 st.markdown("""
 Any Inu ($AI) is a omnichain meme token powered by Axelar's Interchain Token Service. 
 """)
-
-# --- Display Image ---
-st.image("https://pbs.twimg.com/profile_banners/1739891504255025152/1709784887/1500x500", caption="", use_container_width=True)
 
 st.markdown("""
 https://www.axelar.network/
