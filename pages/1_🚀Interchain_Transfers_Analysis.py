@@ -64,11 +64,11 @@ def load_ai_transfer_kpis(start_date, end_date):
                 CASE 
                     WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-12-01 00:00:00.000'
                         THEN token_amount * 0.00000165
-                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-01-01 00:00:00.000'
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2024-01-01 00:00:00.000'
                         THEN token_amount * 0.00000055
-                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-02-01 00:00:00.000'
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2024-02-01 00:00:00.000'
                         THEN token_amount * 0.00000145
-                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-03-01 00:00:00.000'
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2024-03-01 00:00:00.000'
                         THEN token_amount * 0.00000202
                     ELSE transfers_volume_usd 
                 END AS transfers_volume_usd,
