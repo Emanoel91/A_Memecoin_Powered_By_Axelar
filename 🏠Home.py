@@ -7,24 +7,47 @@ st.set_page_config(
     layout="wide"
 )
 
-
 st.title("🔵Any Inu (AI): A Memecoin Powered By Axelar")
 
 # --- Display Image ---
-st.image("https://pbs.twimg.com/profile_banners/1739891504255025152/1709784887/1500x500", caption="", use_container_width=True)
+st.image(
+    "https://pbs.twimg.com/profile_banners/1739891504255025152/1709784887/1500x500",
+    use_container_width=True
+)
 
 st.markdown("""
-Any Inu ($AI) is a omnichain meme token powered by Axelar's Interchain Token Service. 
+Any Inu ($AI) is an omnichain meme token powered by Axelar's Interchain Token Service.
 """)
 
-st.markdown("""
-https://www.axelar.network/
+# --- Links with Logos ---
+st.markdown("### Official Links")
 
-https://www.anyinu.xyz/
+links = [
+    {
+        "logo": "https://axelarscan.io/logos/logo.png",
+        "url": "https://www.axelar.network/",
+        "label": "Axelar Network"
+    },
+    {
+        "logo": "https://raw.githubusercontent.com/axelarnetwork/axelar-configs/main/images/tokens/ai.svg",
+        "url": "https://www.anyinu.xyz/",
+        "label": "Any Inu Official Website"
+    },
+    {
+        "logo": "https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg",
+        "url": "https://x.com/axelar",
+        "label": "Axelar on X"
+    },
+    {
+        "logo": "https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg",
+        "url": "https://x.com/AnyInucoin",
+        "label": "Any Inu on X"
+    }
+]
 
-https://x.com/axelar
-
-https://x.com/AnyInucoin
-
-""")
-
+for link in links:
+    col1, col2 = st.columns([0.1, 0.9])
+    with col1:
+        st.image(link["logo"], width=30)
+    with col2:
+        st.markdown(f"[{link['label']}]({link['url']})")
