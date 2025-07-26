@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 # --- Page Config: Tab Title & Icon ---
 st.set_page_config(
     page_title="Any Inu: A Memecoin Powered By Axelar",
-    page_icon="https://axelarscan.io/logos/logo.png",
+    page_icon="https://raw.githubusercontent.com/axelarnetwork/axelar-configs/main/images/tokens/ai.svg",
     layout="wide"
 )
 
