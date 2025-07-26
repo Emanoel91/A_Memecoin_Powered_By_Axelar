@@ -85,7 +85,7 @@ def load_ai_transfer_kpis(start_date, end_date):
             ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
             ROUND(MEDIAN(transfers_volume_usd), 2) AS "Median Volume of Transfers ($USD)",
             ROUND(SUM(transfer_fee), 2) AS "Total Transfer Fees ($USD)",
-            ROUND(avg(transfer_fee), 2) AS "Average Transfer Fees ($USD)",
+            ROUND(AVG(transfer_fee), 2) AS "Average Transfer Fees ($USD)",
             COUNT(DISTINCT (source_chain || '➡' || destination_chain)) AS "Number of Paths"
         FROM tab2
         WHERE token_symbol = 'AI'
