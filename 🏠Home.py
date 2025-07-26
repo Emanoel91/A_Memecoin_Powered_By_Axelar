@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 
-st.title("Any Inu (AI): A Memecoin Powered By Axelar")
+st.title("🔵Any Inu (AI): A Memecoin Powered By Axelar")
 
 st.markdown("""
 Any Inu ($AI) is a omnichain meme token powered by Axelar's Interchain Token Service. 
