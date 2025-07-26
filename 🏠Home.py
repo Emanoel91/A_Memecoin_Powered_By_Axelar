@@ -15,7 +15,7 @@ Any Inu ($AI) is a omnichain meme token powered by Axelar's Interchain Token Ser
 """)
 
 # --- Display Image ---
-#st.image("https://i.postimg.cc/s2HY308v/axelar.jpg", caption="", use_container_width=True)
+st.image("https://pbs.twimg.com/profile_banners/1739891504255025152/1709784887/1500x500", caption="", use_container_width=True)
 
 st.markdown("""
 https://www.axelar.network/
