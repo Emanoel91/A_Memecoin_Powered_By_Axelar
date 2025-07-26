@@ -102,7 +102,7 @@ ai_transfer_kpis = load_ai_transfer_kpis(start_date, end_date)
 
 # --- Row 1: Metrics ---
 kpi_cols = st.columns(4)
-kpi_cols[0].metric("Number of Transfers", f"{ai_transfer_kpis['Number of Transfers000']:,}")
+kpi_cols[0].metric("Number of Transfers000", f"{ai_transfer_kpis['Number of Transfers']:,}")
 kpi_cols[1].metric("Number of Users", f"{ai_transfer_kpis['Number of Users']:,}")
 kpi_cols[2].metric("Volume of Transfers ($AI)", f"{ai_transfer_kpis['Volume of Transfers ($AI)']:,}")
 kpi_cols[3].metric("Volume of Transfers ($USD)", f"${ai_transfer_kpis['Volume of Transfers ($USD)']:,}")
