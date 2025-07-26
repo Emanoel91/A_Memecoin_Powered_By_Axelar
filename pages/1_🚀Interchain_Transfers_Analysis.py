@@ -11,9 +11,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Wide Layout ---
-st.set_page_config(layout="wide")
-
 st.title("Any Inu: Interchain Transfers Analysis🚀")
 
 # --- Snowflake Connection ---
