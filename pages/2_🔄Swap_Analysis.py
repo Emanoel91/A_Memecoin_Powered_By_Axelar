@@ -80,24 +80,50 @@ st.plotly_chart(fig_combo, use_container_width=True)
 # --- Row 3: Stacked Bar Charts for Count & Swappers ---
 count_monthly = df.groupby([df["Date"].dt.to_period("M"), "Chain"])["Swap Count"].sum().reset_index()
 count_monthly["Date"] = count_monthly["Date"].dt.to_timestamp()
-fig_count = px.bar(count_monthly, x="Date", y="Swap Count", color="Chain", title="Number of AI Token Swaps By Chain per Month", barmode="stack")
-st.plotly_chart(fig_count, use_container_width=True)
 
 swappers_monthly = df.groupby([df["Date"].dt.to_period("M"), "Chain"])["Swapper Count"].sum().reset_index()
 swappers_monthly["Date"] = swappers_monthly["Date"].dt.to_timestamp()
-fig_swappers = px.bar(swappers_monthly, x="Date", y="Swapper Count", color="Chain", title="Number of AI Token Swappers By Chain per Month", barmode="stack")
-st.plotly_chart(fig_swappers, use_container_width=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    fig_count = px.bar(
+        count_monthly, x="Date", y="Swap Count", color="Chain",
+        title="Number of AI Token Swaps By Chain per Month",
+        barmode="stack"
+    )
+    st.plotly_chart(fig_count, use_container_width=True)
+
+with col2:
+    fig_swappers = px.bar(
+        swappers_monthly, x="Date", y="Swapper Count", color="Chain",
+        title="Number of AI Token Swappers By Chain per Month",
+        barmode="stack"
+    )
+    st.plotly_chart(fig_swappers, use_container_width=True)
 
 # --- Row 4: Stacked Bar Charts for Volume ---
 usd_monthly = df.groupby([df["Date"].dt.to_period("M"), "Chain"])["Swap Volume ($USD)"].sum().reset_index()
 usd_monthly["Date"] = usd_monthly["Date"].dt.to_timestamp()
-fig_usd = px.bar(usd_monthly, x="Date", y="Swap Volume ($USD)", color="Chain", title="Volume of AI Token Swaps By Chain per Month ($USD)", barmode="stack")
-st.plotly_chart(fig_usd, use_container_width=True)
 
 ai_monthly = df.groupby([df["Date"].dt.to_period("M"), "Chain"])["Swap Volume ($AI)"].sum().reset_index()
 ai_monthly["Date"] = ai_monthly["Date"].dt.to_timestamp()
-fig_ai = px.bar(ai_monthly, x="Date", y="Swap Volume ($AI)", color="Chain", title="Volume of AI Token Swaps By Chain per Month ($AI)", barmode="stack")
-st.plotly_chart(fig_ai, use_container_width=True)
+
+col3, col4 = st.columns(2)
+with col3:
+    fig_usd = px.bar(
+        usd_monthly, x="Date", y="Swap Volume ($USD)", color="Chain",
+        title="Volume of AI Token Swaps By Chain per Month ($USD)",
+        barmode="stack"
+    )
+    st.plotly_chart(fig_usd, use_container_width=True)
+
+with col4:
+    fig_ai = px.bar(
+        ai_monthly, x="Date", y="Swap Volume ($AI)", color="Chain",
+        title="Volume of AI Token Swaps By Chain per Month ($AI)",
+        barmode="stack"
+    )
+    st.plotly_chart(fig_ai, use_container_width=True)
 
 # --- Row 5: Donut Charts ---
 chain_summary = df.groupby("Chain").agg(
