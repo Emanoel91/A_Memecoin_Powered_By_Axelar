@@ -166,7 +166,7 @@ if not dex_df.empty:
     dex_df.index = dex_df.index + 1  # start index from 1
 
     # --- Row 1: Full Table ---
-    st.subheader("Full Data Table Sorted by Swap Count")
+    st.subheader("🔵Any Inu ($AI) Swap Stats By DEX Across Different Chains")
     st.dataframe(dex_df.style.format({
         "Swap Count": "{:,.0f}",
         "Swap Volume ($AI)": "{:,.0f}",
@@ -175,7 +175,7 @@ if not dex_df.empty:
     }), use_container_width=True)
 
     # --- Row 2: Normalized Stacked Bars ---
-    st.subheader("Normalized Distribution of Swaps and Volumes by Chain & DEX")
+    # st.subheader("Normalized Distribution of Swaps and Volumes by Chain & DEX")
     col1, col2 = st.columns(2)
 
     # Swap Count Normalized
@@ -211,7 +211,7 @@ if not dex_df.empty:
     col2.plotly_chart(fig2, use_container_width=True)
 
     # --- Row 3: Horizontal Bar Charts ---
-    st.subheader("Total Swap Metrics by DEX")
+    #st.subheader("Total Swap Metrics by DEX")
     col3, col4, col5 = st.columns(3)
 
     # Total Swap Count by DEX
@@ -225,6 +225,7 @@ if not dex_df.empty:
         text=count_by_dex.values
     )
     fig3.update_traces(textposition="outside")
+    fig3.update_layout(xaxis_title="Swap count") # change_axis_name
     col3.plotly_chart(fig3, use_container_width=True)
 
     # Total Swap Volume ($AI) by DEX
@@ -238,6 +239,7 @@ if not dex_df.empty:
         text=ai_by_dex.values.round(0)
     )
     fig4.update_traces(textposition="outside")
+    fig4.update_layout(xaxis_title="Swap Volume ($AI)") # change_axis_name
     col4.plotly_chart(fig4, use_container_width=True)
 
     # Total Swap Volume ($USD) by DEX
@@ -251,10 +253,11 @@ if not dex_df.empty:
         text=usd_by_dex.values.round(0)
     )
     fig5.update_traces(textposition="outside")
+    fig5.update_layout(xaxis_title="Swap Volume ($USD)") # change_axis_name
     col5.plotly_chart(fig5, use_container_width=True)
 
     # --- Row 4: Clustered Bar Chart ---
-    st.subheader("Swapper Count by Chain and DEX")
+    #st.subheader("Swapper Count by Chain and DEX")
     swapper_by_chain_dex = dex_df.groupby(['Chain', 'dex'])['Swapper Count'].sum().reset_index()
     fig6 = px.bar(
         swapper_by_chain_dex,
@@ -262,7 +265,7 @@ if not dex_df.empty:
         y="Swapper Count",
         color="dex",
         barmode="group",
-        title="Clustered Bar Chart: Swapper Count by Chain and DEX",
+        title="Swapper Count by Chain and DEX",
         text=swapper_by_chain_dex["Swapper Count"]
     )
     fig6.update_traces(textposition="outside")
