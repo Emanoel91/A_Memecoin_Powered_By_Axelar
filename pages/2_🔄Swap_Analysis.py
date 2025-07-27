@@ -154,7 +154,7 @@ if not df.empty:
         x='Date',
         y='Market Share (%)',
         color='Chain',
-        title="Market Share Trend by Chain Over Time",
+        title="Any Inu ($AI) Market Share Trend by Chain Over Time",
         groupnorm='percent',
         hover_data={
             'Swap Volume ($USD)': ':.2f',
