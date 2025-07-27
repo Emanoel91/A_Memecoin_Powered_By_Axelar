@@ -248,7 +248,9 @@ col4.plotly_chart(fig4, use_container_width=True)
 
 col1, col2 = st.columns(2)
 
-# chart1: Number of Transfers
+col1, col2 = st.columns(2)
+
+# نمودار اول: Number of Transfers
 fig1 = px.bar(
     ai_transfers_by_path,
     x="Date",
@@ -259,7 +261,7 @@ fig1 = px.bar(
 )
 col1.plotly_chart(fig1, use_container_width=True)
 
-# chart2: Volume of Transfers ($USD)
+# نمودار دوم: Volume of Transfers ($USD)
 fig2 = px.bar(
     ai_transfers_by_path,
     x="Date",
