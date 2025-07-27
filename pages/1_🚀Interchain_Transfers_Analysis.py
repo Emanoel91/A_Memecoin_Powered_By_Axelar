@@ -144,10 +144,60 @@ def load_ai_transfers_over_time(timeframe, start_date, end_date):
     """
     return pd.read_sql(query, conn)
 
+# --- Row 5 ----------
+@st.cache_data
+def load_ai_transfers_by_path(timeframe, start_date, end_date):
+    date_col = truncate_date("block_timestamp", timeframe)
+    query = f"""
+        WITH tab2 AS (
+            WITH tab1 AS (
+                SELECT 
+                    created_at AS block_timestamp,
+                    id AS tx_id,
+                    data:call.transaction.from::STRING AS sender_address,
+                    data:call.returnValues.destinationContractAddress::STRING AS receiver_address,
+                    data:amount::FLOAT AS token_amount,
+                    (TRY_CAST(data:value::float AS FLOAT)) AS transfers_volume_usd,
+                    TRY_CAST(data:fees:express_fee_usd::float AS FLOAT) AS transfer_fee,
+                    data:symbol::STRING AS token_symbol,
+                    data:call.chain::STRING AS source_chain,
+                    data:call.returnValues.destinationChain::STRING AS destination_chain
+                FROM axelar.axelscan.fact_gmp
+            )
+            SELECT block_timestamp, tx_id, sender_address, receiver_address, token_amount,
+                CASE 
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2023-12-01 00:00:00.000'
+                        THEN token_amount * 0.00000165
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2024-01-01 00:00:00.000'
+                        THEN token_amount * 0.00000055
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2024-02-01 00:00:00.000'
+                        THEN token_amount * 0.00000145
+                    WHEN transfers_volume_usd IS NULL AND date_trunc('month', block_timestamp) = '2024-03-01 00:00:00.000'
+                        THEN token_amount * 0.00000202
+                    ELSE transfers_volume_usd 
+                END AS transfers_volume_usd,
+                transfer_fee, token_symbol, source_chain, destination_chain
+            FROM tab1
+        )
+        SELECT 
+            {date_col} AS "Date",
+            COUNT(DISTINCT tx_id) AS "Number of Transfers", 
+            ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
+            (source_chain || '➡' || destination_chain) AS "Path"
+        FROM tab2
+        WHERE token_symbol = 'AI'
+          AND block_timestamp::date >= '{start_date}'
+          AND block_timestamp::date <= '{end_date}'
+        GROUP BY 1, 4
+        ORDER BY 1
+    """
+    return pd.read_sql(query, conn)
+
 
 # --- Load Data ----------------------------------------------------------------------------------------
 ai_transfer_kpis = load_ai_transfer_kpis(start_date, end_date)
 ai_transfers_over_time = load_ai_transfers_over_time(timeframe, start_date, end_date)
+ai_transfers_by_path = load_ai_transfers_by_path(timeframe, start_date, end_date)
 
 # --- Row Data ------------------------------------------------------------------------------------------
 
@@ -190,3 +240,32 @@ col3.plotly_chart(fig3, use_container_width=True)
 
 fig4 = px.bar(ai_transfers_over_time, x="Date", y="Number of Paths", title="Number of Interchain Paths Over Time", color_discrete_sequence=['orange'])
 col4.plotly_chart(fig4, use_container_width=True)
+
+# --- Row 5 ---
+
+top_paths = ai_transfers_by_path.groupby("Path")["Volume of Transfers ($USD)"].sum().nlargest(8).index
+ai_transfers_by_path["Path Grouped"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths), "Other")
+
+col1, col2 = st.columns(2)
+
+# chart1: Number of Transfers
+fig1 = px.bar(
+    ai_transfers_by_path,
+    x="Date",
+    y="Number of Transfers",
+    color="Path Grouped",
+    title="Number of Interchain Transfers By Path Over Time",
+    barmode="stack"
+)
+col1.plotly_chart(fig1, use_container_width=True)
+
+# chart2: Volume of Transfers ($USD)
+fig2 = px.bar(
+    ai_transfers_by_path,
+    x="Date",
+    y="Volume of Transfers ($USD)",
+    color="Path Grouped",
+    title="Volume of Interchain Transfers By Path Over Time",
+    barmode="stack"
+)
+col2.plotly_chart(fig2, use_container_width=True)
