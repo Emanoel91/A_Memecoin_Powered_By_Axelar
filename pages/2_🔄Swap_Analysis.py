@@ -68,7 +68,7 @@ fig_combo.add_trace(go.Scatter(
 ))
 
 fig_combo.update_layout(
-    title="Monthly Swap Count (Bar) vs Swap Volume ($USD) (Line)",
+    title="Monthly Swap Count vs Swap Volume ($USD)",
     xaxis=dict(title="Date"),
     yaxis=dict(title="Swap Count", side="left"),
     yaxis2=dict(title="Volume ($USD)", overlaying="y", side="right"),
