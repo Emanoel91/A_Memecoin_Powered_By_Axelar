@@ -24,7 +24,7 @@ conn = snowflake.connector.connect(
 )
 
 # --- Time Frame & Period Selection ---
-timeframe = st.selectbox("Select Time Frame", ["month", "week","day"])
+timeframe = st.selectbox("Select Time Frame", ["month", "week", "day"])
 start_date = st.date_input("Start Date", value=pd.to_datetime("2023-12-01"))
 end_date = st.date_input("End Date", value=pd.to_datetime("2025-06-30"))
 
@@ -193,8 +193,6 @@ def load_ai_transfers_by_path(timeframe, start_date, end_date):
     """
     return pd.read_sql(query, conn)
 
-
-
 # --- Load Data ----------------------------------------------------------------------------------------
 ai_transfer_kpis = load_ai_transfer_kpis(start_date, end_date)
 ai_transfers_over_time = load_ai_transfers_over_time(timeframe, start_date, end_date)
@@ -243,14 +241,12 @@ fig4 = px.bar(ai_transfers_over_time, x="Date", y="Number of Paths", title="Numb
 col4.plotly_chart(fig4, use_container_width=True)
 
 # --- Row 5 ---
-
- top_paths = ai_transfers_by_path.groupby("Path")["Volume of Transfers ($USD)"].sum().nlargest(8).index
+top_paths = ai_transfers_by_path.groupby("Path")["Volume of Transfers ($USD)"].sum().nlargest(8).index
 ai_transfers_by_path["Path Grouped"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths), "Other")
 
-col1, col2 = st.columns(2)
+col5, col6 = st.columns(2)
 
-# نمودار اول: Number of Transfers
-fig1 = px.bar(
+fig5 = px.bar(
     ai_transfers_by_path,
     x="Date",
     y="Number of Transfers",
@@ -258,10 +254,9 @@ fig1 = px.bar(
     title="Number of Interchain Transfers By Path Over Time",
     barmode="stack"
 )
-col1.plotly_chart(fig1, use_container_width=True)
+col5.plotly_chart(fig5, use_container_width=True)
 
-# نمودار دوم: Volume of Transfers ($USD)
-fig2 = px.bar(
+fig6 = px.bar(
     ai_transfers_by_path,
     x="Date",
     y="Volume of Transfers ($USD)",
@@ -269,5 +264,4 @@ fig2 = px.bar(
     title="Volume of Interchain Transfers By Path Over Time",
     barmode="stack"
 )
-col2.plotly_chart(fig2, use_container_width=True)
-
+col6.plotly_chart(fig6, use_container_width=True)
