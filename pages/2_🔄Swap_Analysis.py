@@ -143,3 +143,131 @@ with col3:
     fig_donut3 = px.pie(chain_summary, names="Chain", values="Swap Volume ($AI)", hole=0.5, title="Total Swap Volume ($AI) Across Chains")
     st.plotly_chart(fig_donut3, use_container_width=True)
 
+# -----------------------
+
+# --- Load Data ---
+@st.cache_data(ttl=3600)
+def load_dune_dex():
+    url = "https://api.dune.com/api/v1/query/5543439/results?api_key=afvudxdo4bkUB3Hc9TTWk6w2O7qbAeDi"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        df = pd.DataFrame(data["result"]["rows"])
+        return df
+    else:
+        st.error(f"Failed to fetch data: {response.status_code}")
+        return pd.DataFrame()
+
+dex_df = load_dune_dex()
+
+if not dex_df.empty:
+    # --- Sort by Swap Count Ascending ---
+    dex_df = dex_df.sort_values(by="Swap Count", ascending=True).reset_index(drop=True)
+    dex_df.index = dex_df.index + 1  # start index from 1
+
+    # --- Row 1: Full Table ---
+    st.subheader("Full Data Table Sorted by Swap Count")
+    st.dataframe(dex_df.style.format({
+        "Swap Count": "{:,.0f}",
+        "Swap Volume ($AI)": "{:,.0f}",
+        "Swap Volume ($USD)": "{:,.0f}",
+        "Swapper Count": "{:,.0f}"
+    }), use_container_width=True)
+
+    # --- Row 2: Normalized Stacked Bars ---
+    st.subheader("Normalized Distribution of Swaps and Volumes by Chain & DEX")
+    col1, col2 = st.columns(2)
+
+    # Swap Count Normalized
+    swap_count_norm = dex_df.groupby(['Chain', 'dex'])['Swap Count'].sum().reset_index()
+    total_per_chain = swap_count_norm.groupby('Chain')['Swap Count'].transform('sum')
+    swap_count_norm['Percentage'] = swap_count_norm['Swap Count'] / total_per_chain * 100
+
+    fig1 = px.bar(
+        swap_count_norm,
+        x="Chain",
+        y="Percentage",
+        color="dex",
+        title="Normalized Swap Count (%) by Chain and DEX",
+        text=swap_count_norm["Percentage"].round(1).astype(str) + '%'
+    )
+    fig1.update_layout(barmode="stack", yaxis_title="Percentage (%)")
+    col1.plotly_chart(fig1, use_container_width=True)
+
+    # Swap Volume ($AI) Normalized
+    swap_volume_norm = dex_df.groupby(['Chain', 'dex'])['Swap Volume ($AI)'].sum().reset_index()
+    total_vol_chain = swap_volume_norm.groupby('Chain')['Swap Volume ($AI)'].transform('sum')
+    swap_volume_norm['Percentage'] = swap_volume_norm['Swap Volume ($AI)'] / total_vol_chain * 100
+
+    fig2 = px.bar(
+        swap_volume_norm,
+        x="Chain",
+        y="Percentage",
+        color="dex",
+        title="Normalized Swap Volume ($AI) (%) by Chain and DEX",
+        text=swap_volume_norm["Percentage"].round(1).astype(str) + '%'
+    )
+    fig2.update_layout(barmode="stack", yaxis_title="Percentage (%)")
+    col2.plotly_chart(fig2, use_container_width=True)
+
+    # --- Row 3: Horizontal Bar Charts ---
+    st.subheader("Total Swap Metrics by DEX")
+    col3, col4, col5 = st.columns(3)
+
+    # Total Swap Count by DEX
+    count_by_dex = dex_df.groupby('dex')['Swap Count'].sum().sort_values(ascending=True)
+    fig3 = px.bar(
+        count_by_dex,
+        x=count_by_dex.values,
+        y=count_by_dex.index,
+        orientation='h',
+        title="Total Swap Count by DEX",
+        text=count_by_dex.values
+    )
+    fig3.update_traces(textposition="outside")
+    col3.plotly_chart(fig3, use_container_width=True)
+
+    # Total Swap Volume ($AI) by DEX
+    ai_by_dex = dex_df.groupby('dex')['Swap Volume ($AI)'].sum().sort_values(ascending=True)
+    fig4 = px.bar(
+        ai_by_dex,
+        x=ai_by_dex.values,
+        y=ai_by_dex.index,
+        orientation='h',
+        title="Total Swap Volume ($AI) by DEX",
+        text=ai_by_dex.values.round(0)
+    )
+    fig4.update_traces(textposition="outside")
+    col4.plotly_chart(fig4, use_container_width=True)
+
+    # Total Swap Volume ($USD) by DEX
+    usd_by_dex = dex_df.groupby('dex')['Swap Volume ($USD)'].sum().sort_values(ascending=True)
+    fig5 = px.bar(
+        usd_by_dex,
+        x=usd_by_dex.values,
+        y=usd_by_dex.index,
+        orientation='h',
+        title="Total Swap Volume ($USD) by DEX",
+        text=usd_by_dex.values.round(0)
+    )
+    fig5.update_traces(textposition="outside")
+    col5.plotly_chart(fig5, use_container_width=True)
+
+    # --- Row 4: Clustered Bar Chart ---
+    st.subheader("Swapper Count by Chain and DEX")
+    swapper_by_chain_dex = dex_df.groupby(['Chain', 'dex'])['Swapper Count'].sum().reset_index()
+    fig6 = px.bar(
+        swapper_by_chain_dex,
+        x="Chain",
+        y="Swapper Count",
+        color="dex",
+        barmode="group",
+        title="Clustered Bar Chart: Swapper Count by Chain and DEX",
+        text=swapper_by_chain_dex["Swapper Count"]
+    )
+    fig6.update_traces(textposition="outside")
+    st.plotly_chart(fig6, use_container_width=True)
+
+else:
+    st.warning("No data available.")
+
