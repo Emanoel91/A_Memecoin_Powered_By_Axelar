@@ -243,8 +243,8 @@ col4.plotly_chart(fig4, use_container_width=True)
 
 # --- Row 5 ---
 
-top_paths = ai_transfers_by_path.groupby("Path")["Volume of Transfers ($USD)"].sum().nlargest(8).index
-ai_transfers_by_path["Path Grouped"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths), "Other")
+# top_paths = ai_transfers_by_path.groupby("Path")["Volume of Transfers ($USD)"].sum().nlargest(8).index
+# ai_transfers_by_path["Path Grouped"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths), "Other")
 
 col1, col2 = st.columns(2)
 
