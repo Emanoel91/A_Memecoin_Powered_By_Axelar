@@ -241,26 +241,37 @@ fig4 = px.bar(ai_transfers_over_time, x="Date", y="Number of Paths", title="Numb
 col4.plotly_chart(fig4, use_container_width=True)
 
 # --- Row 5 ---
-top_paths = ai_transfers_by_path.groupby("Path")["Volume of Transfers ($USD)"].sum().nlargest(8).index
-ai_transfers_by_path["Path Grouped"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths), "Other")
+# --- Row 5: Paths ---
+# 8 مسیر برتر بر اساس تعداد Transfers
+top_paths_count = df.groupby("Path")["tx_id"].nunique().nlargest(8).index
+df['Path_Grouped_Count'] = df['Path'].where(df['Path'].isin(top_paths_count), "Other")
+agg_by_path_count = df.groupby(['Date', 'Path_Grouped_Count']).agg(
+    **{"Number of Transfers": ('tx_id', 'nunique')}
+).reset_index()
+
+# 8 مسیر برتر بر اساس Volume USD
+top_paths_volume = df.groupby("Path")["transfers_volume_usd"].sum().nlargest(8).index
+df['Path_Grouped_Volume'] = df['Path'].where(df['Path'].isin(top_paths_volume), "Other")
+agg_by_path_volume = df.groupby(['Date', 'Path_Grouped_Volume']).agg(
+    **{"Volume of Transfers ($USD)": ('transfers_volume_usd', 'sum')}
+).reset_index()
 
 col5, col6 = st.columns(2)
-
 fig5 = px.bar(
-    ai_transfers_by_path,
+    agg_by_path_count,
     x="Date",
     y="Number of Transfers",
-    color="Path Grouped",
+    color="Path_Grouped_Count",
     title="Number of Interchain Transfers By Path Over Time",
     barmode="stack"
 )
 col5.plotly_chart(fig5, use_container_width=True)
 
 fig6 = px.bar(
-    ai_transfers_by_path,
+    agg_by_path_volume,
     x="Date",
     y="Volume of Transfers ($USD)",
-    color="Path Grouped",
+    color="Path_Grouped_Volume",
     title="Volume of Interchain Transfers By Path Over Time",
     barmode="stack"
 )
