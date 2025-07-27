@@ -189,12 +189,110 @@ def load_ai_interchain_paths(start_date, end_date):
     """
     return pd.read_sql(query, conn)
 
+# --- Row 7: Interchain Source Chains Table ---
+@st.cache_data
+def load_ai_source_chains(start_date, end_date):
+    query = f"""
+        WITH tab2 AS (
+            WITH tab1 AS (
+                SELECT 
+                    created_at AS block_timestamp,
+                    id AS tx_id,
+                    data:call.transaction.from::STRING AS sender_address,
+                    data:call.returnValues.destinationContractAddress::STRING AS receiver_address,
+                    data:amount::FLOAT AS token_amount,
+                    (TRY_CAST(data:value::float AS FLOAT)) AS transfers_volume_usd,
+                    TRY_CAST(data:fees:express_fee_usd::float AS FLOAT) AS transfer_fee,
+                    data:symbol::STRING AS token_symbol,
+                    data:call.chain::STRING AS source_chain,
+                    data:call.returnValues.destinationChain::STRING AS destination_chain
+                FROM axelar.axelscan.fact_gmp
+            )
+            SELECT block_timestamp, tx_id, sender_address, receiver_address, token_amount,
+                CASE 
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2023-12-01 00:00:00.000' THEN token_amount * 0.00000165
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2024-01-01 00:00:00.000' THEN token_amount * 0.00000055
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2024-02-01 00:00:00.000' THEN token_amount * 0.00000145
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2024-03-01 00:00:00.000' THEN token_amount * 0.00000202
+                    ELSE transfers_volume_usd END AS transfers_volume_usd,
+                transfer_fee, token_symbol, source_chain, destination_chain
+            FROM tab1
+        )
+        SELECT 
+            source_chain AS "Source Chain",
+            COUNT(DISTINCT tx_id) AS "Number of Transfers",
+            COUNT(DISTINCT sender_address) AS "Number of Users",
+            ROUND(SUM(token_amount), 2) AS "Volume of Transfers ($AI)",
+            ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
+            ROUND(MEDIAN(transfers_volume_usd), 2) AS "Median Volume of Transfers ($USD)",
+            ROUND(SUM(transfer_fee), 2) AS "Total Transfer Fees ($USD)",
+            ROUND(AVG(transfer_fee), 2) AS "Avg Transfer Fees ($USD)"
+        FROM tab2
+        WHERE token_symbol = 'AI'
+          AND block_timestamp::date >= '{start_date}'
+          AND block_timestamp::date <= '{end_date}'
+        GROUP BY 1
+        ORDER BY 2 DESC
+    """
+    return pd.read_sql(query, conn)
+
+# --- Row 8: Interchain Destination Chains Table ---
+@st.cache_data
+def load_ai_destination_chains(start_date, end_date):
+    query = f"""
+        WITH tab2 AS (
+            WITH tab1 AS (
+                SELECT 
+                    created_at AS block_timestamp,
+                    id AS tx_id,
+                    data:call.transaction.from::STRING AS sender_address,
+                    data:call.returnValues.destinationContractAddress::STRING AS receiver_address,
+                    data:amount::FLOAT AS token_amount,
+                    (TRY_CAST(data:value::float AS FLOAT)) AS transfers_volume_usd,
+                    TRY_CAST(data:fees:express_fee_usd::float AS FLOAT) AS transfer_fee,
+                    data:symbol::STRING AS token_symbol,
+                    data:call.chain::STRING AS source_chain,
+                    data:call.returnValues.destinationChain::STRING AS destination_chain
+                FROM axelar.axelscan.fact_gmp
+            )
+            SELECT block_timestamp, tx_id, sender_address, receiver_address, token_amount,
+                CASE 
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2023-12-01 00:00:00.000' THEN token_amount * 0.00000165
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2024-01-01 00:00:00.000' THEN token_amount * 0.00000055
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2024-02-01 00:00:00.000' THEN token_amount * 0.00000145
+                    WHEN transfers_volume_usd IS NULL AND DATE_TRUNC('month', block_timestamp) = '2024-03-01 00:00:00.000' THEN token_amount * 0.00000202
+                    ELSE transfers_volume_usd END AS transfers_volume_usd,
+                transfer_fee, token_symbol, source_chain, destination_chain
+            FROM tab1
+        )
+        SELECT 
+            destination_chain AS "Destination Chain",
+            COUNT(DISTINCT tx_id) AS "Number of Transfers",
+            COUNT(DISTINCT sender_address) AS "Number of Users",
+            ROUND(SUM(token_amount), 2) AS "Volume of Transfers ($AI)",
+            ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
+            ROUND(MEDIAN(transfers_volume_usd), 2) AS "Median Volume of Transfers ($USD)",
+            ROUND(SUM(transfer_fee), 2) AS "Total Transfer Fees ($USD)",
+            ROUND(AVG(transfer_fee), 2) AS "Avg Transfer Fees ($USD)"
+        FROM tab2
+        WHERE token_symbol = 'AI'
+          AND block_timestamp::date >= '{start_date}'
+          AND block_timestamp::date <= '{end_date}'
+        GROUP BY 1
+        ORDER BY 2 DESC
+    """
+    return pd.read_sql(query, conn)
+
 
 # --- Load Data ---------------------------------------------------------------------------------------------------------------------------------
 ai_transfer_kpis = load_ai_transfer_kpis(start_date, end_date)
 ai_transfers_over_time = load_ai_transfers_over_time(timeframe, start_date, end_date)
 df_paths = load_ai_interchain_paths(start_date, end_date)
 df_paths.index = range(1, len(df_paths) + 1)
+df_source_chains = load_ai_source_chains(start_date, end_date)
+df_source_chains.index = range(1, len(df_source_chains) + 1)
+df_destination_chains = load_ai_destination_chains(start_date, end_date)
+df_destination_chains.index = range(1, len(df_destination_chains) + 1)
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -271,3 +369,10 @@ fig6.update_traces(texttemplate='%{text}', textposition='outside')
 fig6.update_layout(yaxis={'categoryorder': 'total ascending'}, height=600)
 col6.plotly_chart(fig6, use_container_width=True)
 
+# --- Row 7 ------------------------
+st.subheader("Interchain Statistics by Source Chain")
+st.dataframe(df_source_chains)
+
+# --- Row 8 ------------------------
+st.subheader("Interchain Statistics by Destination Chain")
+st.dataframe(df_destination_chains)
