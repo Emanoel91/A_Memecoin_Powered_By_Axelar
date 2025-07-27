@@ -239,7 +239,7 @@ fig4 = px.bar(ai_transfers_over_time, x="Date", y="Number of Paths", title="Numb
 col4.plotly_chart(fig4, use_container_width=True)
 
 # --- Row 5 ----------------------
-st.subheader("Interchain Path Statistics for $AI")
+st.subheader("🔎Interchain Path Statistics for $AI")
 st.dataframe(df_paths)
 
 # --- Row 6: Two Horizontal Bar Charts (Top 10 paths) ---
@@ -261,7 +261,7 @@ col5.plotly_chart(fig5, use_container_width=True)
 top_by_volume = df_paths.nlargest(10, "Volume of Transfers ($USD)")
 fig6 = px.bar(
     top_by_volume,
-    x="Volume of Transfers ($USD)",
+    x="Volume of Transfers ($USD)", 
     y="Path",
     orientation="h",
     title="Top 10 $AI Interchain Paths By Volume of Transfers ($USD)",
