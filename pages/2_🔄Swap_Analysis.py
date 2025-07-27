@@ -125,6 +125,45 @@ with col4:
     )
     st.plotly_chart(fig_ai, use_container_width=True)
 
+#-----------------------------------------------------------------------------------------------------
+# --- Market Share Trend by Chain Over Time (Stacked Area Chart) ---
+if not swap_df.empty:
+    swap_df['Date'] = pd.to_datetime(swap_df['Date'])
+
+    # محاسبه مجموع Swap Volume ($USD) برای هر تاریخ
+    total_by_date = swap_df.groupby('Date')['Swap Volume ($USD)'].transform('sum')
+    swap_df['Market Share (%)'] = (swap_df['Swap Volume ($USD)'] / total_by_date) * 100
+
+    # رسم نمودار
+    fig_market_share = px.area(
+        swap_df,
+        x='Date',
+        y='Market Share (%)',
+        color='Chain',
+        title="Market Share Trend by Chain Over Time",
+        groupnorm='percent',
+        hover_data={
+            'Swap Volume ($USD)': ':.2f',
+            'Market Share (%)': ':.2f',
+            'Chain': True
+        },
+        color_discrete_sequence=px.colors.qualitative.Set3
+    )
+
+    fig_market_share.update_traces(line=dict(width=0.5))  # خطوط مرز باریک بین نواحی
+    fig_market_share.update_layout(
+        yaxis_title='Market Share (%)',
+        xaxis_title='Date',
+        legend_title='Chain',
+        hovermode='x unified',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+
+    st.plotly_chart(fig_market_share, use_container_width=True)
+
+#-----------------------------------------------------------------------------------------------------
+
 # --- Row 5: Donut Charts ---
 chain_summary = df.groupby("Chain").agg(
     {"Swap Count": "sum", "Swap Volume ($USD)": "sum", "Swap Volume ($AI)": "sum"}
