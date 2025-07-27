@@ -4,7 +4,7 @@ import snowflake.connector
 import plotly.express as px
 import plotly.graph_objects as go
 
-# --- Page Config: Tab Title & Icon ---
+# --- Page Config ---
 st.set_page_config(
     page_title="Any Inu: A Memecoin Powered By Axelar",
     page_icon="https://raw.githubusercontent.com/axelarnetwork/axelar-configs/main/images/tokens/ai.svg",
@@ -28,7 +28,7 @@ timeframe = st.selectbox("Select Time Frame", ["month", "week", "day"])
 start_date = st.date_input("Start Date", value=pd.to_datetime("2023-12-01"))
 end_date = st.date_input("End Date", value=pd.to_datetime("2025-06-30"))
 
-# --- Helper function for date truncation based on timeframe ---
+# --- Helper function ---
 def truncate_date(date_col, timeframe):
     if timeframe == "day":
         return f"block_timestamp::date"
@@ -41,7 +41,7 @@ def truncate_date(date_col, timeframe):
 
 date_col = truncate_date("block_timestamp", timeframe)
 
-# --- Query Functions ---------------------------------------------------------------------------------------
+# --- Query Functions ---
 @st.cache_data
 def load_ai_transfer_kpis(start_date, end_date):
     query = f"""
@@ -82,7 +82,7 @@ def load_ai_transfer_kpis(start_date, end_date):
             ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
             ROUND(MEDIAN(transfers_volume_usd), 2) AS "Median Volume of Transfers ($USD)",
             ROUND(SUM(transfer_fee), 2) AS "Total Transfer Fees ($USD)",
-            ROUND(Median(transfer_fee), 2) AS "Median Transfer Fees ($USD)",
+            ROUND(MEDIAN(transfer_fee), 2) AS "Median Transfer Fees ($USD)",
             COUNT(DISTINCT (source_chain || '➡' || destination_chain)) AS "Number of Paths"
         FROM tab2
         WHERE token_symbol = 'AI'
@@ -91,7 +91,6 @@ def load_ai_transfer_kpis(start_date, end_date):
     """
     return pd.read_sql(query, conn).iloc[0]
 
-# --- Row 3,4 --------------------
 @st.cache_data
 def load_ai_transfers_over_time(timeframe, start_date, end_date):
     date_col = truncate_date("block_timestamp", timeframe)
@@ -144,7 +143,6 @@ def load_ai_transfers_over_time(timeframe, start_date, end_date):
     """
     return pd.read_sql(query, conn)
 
-# --- Row 5 ----------
 @st.cache_data
 def load_ai_transfers_by_path(timeframe, start_date, end_date):
     date_col = truncate_date("block_timestamp", timeframe)
@@ -181,24 +179,20 @@ def load_ai_transfers_by_path(timeframe, start_date, end_date):
         )
         SELECT 
             {date_col} AS "Date",
-            COUNT(DISTINCT tx_id) AS "Number of Transfers", 
-            ROUND(SUM(transfers_volume_usd), 2) AS "Volume of Transfers ($USD)",
+            tx_id,
+            transfers_volume_usd,
             (source_chain || '➡' || destination_chain) AS "Path"
         FROM tab2
         WHERE token_symbol = 'AI'
           AND block_timestamp::date >= '{start_date}'
           AND block_timestamp::date <= '{end_date}'
-        GROUP BY 1, 4
-        ORDER BY 1
     """
     return pd.read_sql(query, conn)
 
-# --- Load Data ----------------------------------------------------------------------------------------
+# --- Load Data ---
 ai_transfer_kpis = load_ai_transfer_kpis(start_date, end_date)
 ai_transfers_over_time = load_ai_transfers_over_time(timeframe, start_date, end_date)
 ai_transfers_by_path = load_ai_transfers_by_path(timeframe, start_date, end_date)
-
-# --- Row Data ------------------------------------------------------------------------------------------
 
 # --- Row 1: Metrics ---
 kpi_cols = st.columns(4)
@@ -240,23 +234,23 @@ col3.plotly_chart(fig3, use_container_width=True)
 fig4 = px.bar(ai_transfers_over_time, x="Date", y="Number of Paths", title="Number of Interchain Paths Over Time", color_discrete_sequence=['orange'])
 col4.plotly_chart(fig4, use_container_width=True)
 
-# --- Row 5 ---
 # --- Row 5: Paths ---
-# 8 مسیر برتر بر اساس تعداد Transfers
-top_paths_count = df.groupby("Path")["tx_id"].nunique().nlargest(8).index
-df['Path_Grouped_Count'] = df['Path'].where(df['Path'].isin(top_paths_count), "Other")
-agg_by_path_count = df.groupby(['Date', 'Path_Grouped_Count']).agg(
-    **{"Number of Transfers": ('tx_id', 'nunique')}
+# 8 مسیر برتر براساس تعداد Transfers
+top_paths_count = ai_transfers_by_path.groupby("Path")["tx_id"].nunique().nlargest(8).index
+ai_transfers_by_path["Path_Grouped_Count"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths_count), "Other")
+agg_by_path_count = ai_transfers_by_path.groupby(["Date", "Path_Grouped_Count"]).agg(
+    **{"Number of Transfers": ("tx_id", "nunique")}
 ).reset_index()
 
-# 8 مسیر برتر بر اساس Volume USD
-top_paths_volume = df.groupby("Path")["transfers_volume_usd"].sum().nlargest(8).index
-df['Path_Grouped_Volume'] = df['Path'].where(df['Path'].isin(top_paths_volume), "Other")
-agg_by_path_volume = df.groupby(['Date', 'Path_Grouped_Volume']).agg(
-    **{"Volume of Transfers ($USD)": ('transfers_volume_usd', 'sum')}
+# 8 مسیر برتر براساس Volume USD
+top_paths_volume = ai_transfers_by_path.groupby("Path")["transfers_volume_usd"].sum().nlargest(8).index
+ai_transfers_by_path["Path_Grouped_Volume"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths_volume), "Other")
+agg_by_path_volume = ai_transfers_by_path.groupby(["Date", "Path_Grouped_Volume"]).agg(
+    **{"Volume of Transfers ($USD)": ("transfers_volume_usd", "sum")}
 ).reset_index()
 
 col5, col6 = st.columns(2)
+
 fig5 = px.bar(
     agg_by_path_count,
     x="Date",
