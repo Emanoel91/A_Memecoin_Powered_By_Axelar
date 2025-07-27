@@ -194,6 +194,7 @@ def load_ai_transfers_by_path(timeframe, start_date, end_date):
     return pd.read_sql(query, conn)
 
 
+
 # --- Load Data ----------------------------------------------------------------------------------------
 ai_transfer_kpis = load_ai_transfer_kpis(start_date, end_date)
 ai_transfers_over_time = load_ai_transfers_over_time(timeframe, start_date, end_date)
@@ -244,7 +245,7 @@ col4.plotly_chart(fig4, use_container_width=True)
 # --- Row 5 ---
 
  top_paths = ai_transfers_by_path.groupby("Path")["Volume of Transfers ($USD)"].sum().nlargest(8).index
- ai_transfers_by_path["Path Grouped"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths), "Other")
+ai_transfers_by_path["Path Grouped"] = ai_transfers_by_path["Path"].where(ai_transfers_by_path["Path"].isin(top_paths), "Other")
 
 col1, col2 = st.columns(2)
 
@@ -269,3 +270,4 @@ fig2 = px.bar(
     barmode="stack"
 )
 col2.plotly_chart(fig2, use_container_width=True)
+
