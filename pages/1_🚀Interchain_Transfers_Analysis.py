@@ -248,8 +248,6 @@ col4.plotly_chart(fig4, use_container_width=True)
 
 col1, col2 = st.columns(2)
 
-col1, col2 = st.columns(2)
-
 # نمودار اول: Number of Transfers
 fig1 = px.bar(
     ai_transfers_by_path,
