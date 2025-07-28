@@ -2,53 +2,84 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.express as px
-import plotly.graph_objects as go
 
-# --- Page Config: Tab Title & Icon ---
+# --- Page Config ---
 st.set_page_config(
-    page_title="Any Inu: A Memecoin Powered By Axelar",
+    page_title="Any Inu Holders Distribution",
     page_icon="https://raw.githubusercontent.com/axelarnetwork/axelar-configs/main/images/tokens/ai.svg",
     layout="wide"
 )
 
-st.title("💼Any Inu Holders Analysis")
-
-st.info(
-    "🔔The data in this section is updated on Mondays between 14:30 and 15:00 UTC. "
-    "To view the most recent updates, click on the '...' in the top-right corner of the page and select 'Rerun'."
-)
+st.title("📊 Any Inu Holders Distribution")
 
 # --- Load data from Dune API ---
 @st.cache_data(ttl=3600)
-def load_dune_ai_swaps():
-    url = "https://api.dune.com/api/v1/query/5542748/results?api_key=kmCBMTxWKBxn6CVgCXhwDvcFL1fBp6rO"
+def load_holders_data():
+    url = "https://api.dune.com/api/v1/query/5543959/results?api_key=kmCBMTxWKBxn6CVgCXhwDvcFL1fBp6rO"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
         df = pd.DataFrame(data["result"]["rows"])
-        df["Date"] = pd.to_datetime(df["Date"])
-        for col in ["Swap Count", "Swap Volume ($AI)", "Swap Volume ($USD)", "Swapper Count"]:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+        df["Holders Count"] = pd.to_numeric(df["Holders Count"], errors="coerce")
         return df
     else:
         st.error(f"Failed to fetch data: {response.status_code}")
         return pd.DataFrame()
 
-df = load_dune_ai_swaps()
+df = load_holders_data()
 
 if df.empty:
     st.warning("No data available.")
     st.stop()
 
-# --- KPIs ---
-total_swaps = df["Swap Count"].sum()
-total_volume_ai = df["Swap Volume ($AI)"].sum()
-total_volume_usd = df["Swap Volume ($USD)"].sum()
+# --- Mapping logos ---
+chain_logos = {
+    "Ethereum": "https://img.cryptorank.io/coins/60x60.ethereum1524754015525.png",
+    "Binance Smart Chain": "https://img.cryptorank.io/coins/60x60.wrapped%20bnb1648029706921.png",
+    "Avalanche": "https://img.cryptorank.io/coins/60x60.avalanche1629705441155.png",
+    "Mantle": "https://img.cryptorank.io/coins/60x60.mantle1739806212282.png",
+    "Arbitrum": "https://img.cryptorank.io/coins/60x60.arbitrum1696871846920.png",
+    "Polygon": "https://img.cryptorank.io/coins/60x60.polygon_ecosystem_token1698250519897.png",
+    "Optimism": "https://img.cryptorank.io/coins/60x60.optimism1654027460186.png",
+    "Celo": "https://img.cryptorank.io/coins/60x60.celo1673883176164.png",
+    "Blast": "https://img.cryptorank.io/coins/60x60.blast1719473292032.png",
+    "Scroll": "https://img.cryptorank.io/coins/60x60.scroll1693474620599.png",
+    "Fantom": "https://img.cryptorank.io/coins/60x60.fantom1611564619788.png",
+    "Linea": "https://img.cryptorank.io/coins/60x60.linea1680021297845.png",
+    "Base": "https://img.cryptorank.io/coins/60x60.base1752857325751.png"
+}
 
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Number of Swaps", f"{total_swaps:,.0f}")
-col2.metric("Total Volume of Swaps ($AI)", f"{total_volume_ai:,.0f}")
-col3.metric("Total Volume of Swaps ($USD)", f"${total_volume_usd:,.0f}")
+df["Logo"] = df["Chain"].map(chain_logos)
 
+# --- KPI ---
+total_holders = df["Holders Count"].sum()
+st.markdown(
+    f"<h2 style='text-align: center; color: #4CAF50;'>Number of Any Inu (AI) Holders: {total_holders:,}</h2>",
+    unsafe_allow_html=True
+)
 
+# --- Charts ---
+col1, col2 = st.columns(2)
 
+with col1:
+    df_sorted = df.sort_values("Holders Count", ascending=True)
+    fig_bar = px.bar(
+        df_sorted,
+        x="Holders Count",
+        y="Chain",
+        orientation="h",
+        text="Holders Count",
+        title="Any Inu Holders by Chain",
+    )
+    fig_bar.update_traces(texttemplate="%{text:,}", textposition="outside")
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+with col2:
+    fig_donut = px.pie(
+        df,
+        values="Holders Count",
+        names="Chain",
+        hole=0.5,
+        title="Distribution of Any Inu Holders"
+    )
+    st.plotly_chart(fig_donut, use_container_width=True)
