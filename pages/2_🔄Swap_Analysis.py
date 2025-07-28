@@ -11,7 +11,12 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("Any Inu: Swap Analysis🔄")
+st.title("🔄Any Inu: Swap Analysis")
+
+st.info(
+    "🔔The data in this section is updated on Mondays between 3:30 and 4:00 PM. "
+    "To view the most recent updates, click on the '...' in the top-right corner of the page and select 'Rerun'."
+)
 
 # --- Load data from Dune API ---
 @st.cache_data(ttl=3600)
@@ -293,8 +298,3 @@ if not dex_df.empty:
 else:
     st.warning("No data available.")
 
-
-st.info(
-    "🔔The data in this section is updated on Mondays between 3:30 and 4:00 PM. "
-    "To view the most recent updates, click on the '...' in the top-right corner of the page and select 'Rerun'."
-)
