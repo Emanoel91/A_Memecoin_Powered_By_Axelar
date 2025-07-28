@@ -14,7 +14,7 @@ st.set_page_config(
 st.title("🔄Any Inu: Swap Analysis")
 
 st.info(
-    "🔔The data in this section is updated on Mondays between 3:30 and 4:00 PM (UTC). "
+    "🔔The data in this section is updated on Mondays between 14:30 and 15:00 UTC. "
     "To view the most recent updates, click on the '...' in the top-right corner of the page and select 'Rerun'."
 )
 
