@@ -20,7 +20,7 @@ Any Inu ($AI) is an omnichain meme token powered by Axelar's Interchain Token Se
 """)
 
 # --- Links with Logos ---
-st.markdown("### Official Links")
+# st.markdown("### Official Links")
 
 links = [
     {
