@@ -180,7 +180,7 @@ if not df.empty:
 # --- Load Data ---
 @st.cache_data(ttl=3600)
 def load_dune_dex():
-    url = "https://api.dune.com/api/v1/query/5543439/results?api_key=afvudxdo4bkUB3Hc9TTWk6w2O7qbAeDi"
+    url = "https://api.dune.com/api/v1/query/5544025/results?api_key=kmCBMTxWKBxn6CVgCXhwDvcFL1fBp6rO"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
