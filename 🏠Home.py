@@ -37,35 +37,37 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Links with Logos -------------------------------------------------------------------------------------------------
-# st.markdown("### Official Links")
+# --- Reference and Rebuild Info --------------------------------------------------------------------------------------
+st.markdown(
+    """
+    <div style="margin-top: 20px; margin-bottom: 20px; font-size: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/3178/3178287.png" alt="Reference" style="width:20px; height:20px;">
+            <span>Dashboard Reference: <a href="https://flipsidecrypto.xyz/Sniper/axelar-staking-NU6QUG" target="_blank">https://flipsidecrypto.xyz/Sniper/axelar-staking-NU6QUG/</a></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="https://pbs.twimg.com/profile_images/1841479747332608000/bindDGZQ_400x400.jpg" alt="Eman Raz" style="width:25px; height:25px; border-radius: 50%;">
+            <span>Rebuilt by: <a href="https://x.com/0xeman_raz" target="_blank">Eman Raz</a></span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-links = [
-    {
-        "logo": "https://axelarscan.io/logos/logo.png",
-        "url": "https://www.axelar.network/",
-        "label": "Axelar Network"
-    },
-    {
-        "logo": "https://raw.githubusercontent.com/axelarnetwork/axelar-configs/main/images/tokens/ai.svg",
-        "url": "https://www.anyinu.xyz/",
-        "label": "Any Inu Official Website"
-    },
-    {
-        "logo": "https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg",
-        "url": "https://x.com/axelar",
-        "label": "Axelar on X"
-    },
-    {
-        "logo": "https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg",
-        "url": "https://x.com/AnyInucoin",
-        "label": "Any Inu on X"
-    }
-]
-
-for link in links:
-    col1, col2 = st.columns([0.1, 0.9])
-    with col1:
-        st.image(link["logo"], width=30)
-    with col2:
-        st.markdown(f"[{link['label']}]({link['url']})")
+# --- Links with Logos ---------------------------------------------------------------------------------------
+st.markdown(
+    """
+    <div style="font-size: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="https://axelarscan.io/logos/logo.png" alt="Axelar" style="width:20px; height:20px;">
+            <a href="https://www.axelar.network/" target="_blank">https://www.axelar.network/</a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968958.png" alt="X" style="width:20px; height:20px;">
+            <a href="https://x.com/axelar" target="_blank">https://x.com/axelar</a>
+        </div>
+        
+    </div>
+    """,
+    unsafe_allow_html=True
+)
