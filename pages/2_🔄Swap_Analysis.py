@@ -292,3 +292,9 @@ if not dex_df.empty:
 
 else:
     st.warning("No data available.")
+
+
+st.info(
+    "The data in this section is updated on Mondays between 3:30 and 4:00 PM. "
+    "To view the most recent updates, click on the three dots in the top-right corner of the page and select Rerun."
+)
