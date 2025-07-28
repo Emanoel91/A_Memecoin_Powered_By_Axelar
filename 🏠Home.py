@@ -18,12 +18,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Display Image ------------------------------------------------------------------------------------------------------
-st.image(
-    "https://pbs.twimg.com/profile_banners/1739891504255025152/1709784887/1500x500",
-    use_container_width=True
-)
-
 # --- Info Box --------------------------------------------------------------------------------------------------------------
 st.markdown(
     """
@@ -40,14 +34,10 @@ st.markdown(
 # --- Reference and Rebuild Info --------------------------------------------------------------------------------------
 st.markdown(
     """
-    <div style="margin-top: 20px; margin-bottom: 20px; font-size: 16px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-            <img src="https://cdn-icons-png.flaticon.com/512/3178/3178287.png" alt="Reference" style="width:20px; height:20px;">
-            <span>Dashboard Reference: <a href="https://flipsidecrypto.xyz/Sniper/axelar-staking-NU6QUG" target="_blank">https://flipsidecrypto.xyz/Sniper/axelar-staking-NU6QUG/</a></span>
-        </div>
+    
         <div style="display: flex; align-items: center; gap: 10px;">
             <img src="https://pbs.twimg.com/profile_images/1841479747332608000/bindDGZQ_400x400.jpg" alt="Eman Raz" style="width:25px; height:25px; border-radius: 50%;">
-            <span>Rebuilt by: <a href="https://x.com/0xeman_raz" target="_blank">Eman Raz</a></span>
+            <span>Built by: <a href="https://x.com/0xeman_raz" target="_blank">Eman Raz</a></span>
         </div>
     </div>
     """,
