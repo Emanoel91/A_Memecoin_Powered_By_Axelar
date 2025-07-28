@@ -7,9 +7,19 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🔵Any Inu (AI): A Memecoin Powered By Axelar")
+st.title("🔵")
+# --- Title with Logo ---------------------------------------------------------------------------------------------------
+st.markdown(
+    """
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <img src="https://raw.githubusercontent.com/axelarnetwork/axelar-configs/main/images/tokens/ai.svg" alt="Any Inu Logo" style="width:60px; height:60px;">
+        <h1 style="margin: 0;">Any Inu (AI): A Memecoin Powered By Axelar</h1>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-# --- Display Image ---
+# --- Display Image ------------------------------------------------------------------------------------------------------
 st.image(
     "https://pbs.twimg.com/profile_banners/1739891504255025152/1709784887/1500x500",
     use_container_width=True
