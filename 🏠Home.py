@@ -24,11 +24,20 @@ st.image(
     use_container_width=True
 )
 
-st.markdown("""
-Any Inu ($AI) is an omnichain meme token powered by Axelar's Interchain Token Service.
-""")
+# --- Info Box --------------------------------------------------------------------------------------------------------------
+st.markdown(
+    """
+    <div style="background-color: #11caff; padding: 15px; border-radius: 10px; border: 1px solid #ffd700;">
+        Any Inu is powered by Axelar’s Interchain Token Service, which enables native interoperability across blockchains. 
+        Axelar’s decentralized network and proof-of-stake consensus ensure secure cross-chain communication, eliminating the 
+        need for wrapped tokens (common in traditional bridges) and reducing risks. Axelar’s ecosystem supports Any Inu’s presence 
+        on multiple chains, enhancing its scalability and accessibility in the Web3 space.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-# --- Links with Logos ---
+# --- Links with Logos -------------------------------------------------------------------------------------------------
 # st.markdown("### Official Links")
 
 links = [
