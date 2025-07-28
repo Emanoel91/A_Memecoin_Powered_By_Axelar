@@ -2,11 +2,10 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.express as px
-import plotly.graph_objects as go
 
 # --- Page Config ---
 st.set_page_config(
-    page_title="Any Inu Holders Distribution",
+    page_title="💼Any Inu Holders Analysis",
     page_icon="https://raw.githubusercontent.com/axelarnetwork/axelar-configs/main/images/tokens/ai.svg",
     layout="wide"
 )
@@ -64,46 +63,16 @@ col1, col2 = st.columns(2)
 
 with col1:
     df_sorted = df.sort_values("Holders Count", ascending=True)
-    fig = go.Figure()
-
-    fig.add_trace(go.Bar(
-        x=df_sorted["Holders Count"],
-        y=[i for i in range(len(df_sorted))],  # جایگزین نام زنجیره‌ها
+    fig_bar = px.bar(
+        df_sorted,
+        x="Holders Count",
+        y="Chain",
         orientation="h",
-        text=df_sorted["Holders Count"],
-        textposition="outside",
-        marker_color="#1f77b4",
-        hovertext=df_sorted["Chain"],
-        hoverinfo="text"
-    ))
-
-    fig.update_layout(
-        title="Any Inu Holders by Chain (Logos Shown)",
-        yaxis=dict(
-            showticklabels=False,
-            showgrid=False
-        ),
-        xaxis_title="Holders Count",
-        margin=dict(l=100, r=50, t=50, b=50),
-        height=600
+        text="Holders Count",
+        title="Any Inu Holders by Chain",
     )
-
-    # اضافه کردن لوگوها کنار هر bar
-    for i, row in enumerate(df_sorted.itertuples()):
-        fig.add_layout_image(
-            dict(
-                source=row.Logo,
-                x=0, y=i,
-                xref="x", yref="y",
-                xanchor="right",
-                sizex=max(df_sorted["Holders Count"]) * 0.05,
-                sizey=0.5,
-                sizing="contain",
-                layer="above"
-            )
-        )
-
-    st.plotly_chart(fig, use_container_width=True)
+    fig_bar.update_traces(texttemplate="%{text:,}", textposition="outside")
+    st.plotly_chart(fig_bar, use_container_width=True)
 
 with col2:
     fig_donut = px.pie(
