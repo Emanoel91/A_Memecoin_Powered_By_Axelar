@@ -27,7 +27,7 @@ st.image(
 # --- Info Box --------------------------------------------------------------------------------------------------------------
 st.markdown(
     """
-    <div style="background-color: #11caff; padding: 15px; border-radius: 10px; border: 1px solid #ffd700;">
+    <div style="background-color: #11caff; padding: 15px; border-radius: 10px; border: 1px solid #11caff;">
         Any Inu is powered by Axelar’s Interchain Token Service, which enables native interoperability across blockchains. 
         Axelar’s decentralized network and proof-of-stake consensus ensure secure cross-chain communication, eliminating the 
         need for wrapped tokens (common in traditional bridges) and reducing risks. Axelar’s ecosystem supports Any Inu’s presence 
